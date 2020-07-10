@@ -28,7 +28,7 @@ func Open() {
 	}
 
 	db.AutoMigrate(&models.News{})
-	db.AutoMigrate(&models.Users{})
+	db.AutoMigrate(&models.Players{})
 	db.AutoMigrate(&models.Quiz{})
 
 	stDb = db
@@ -46,6 +46,6 @@ func Close() error {
 		return err
 	}
 
-	fmt.Println("disconnecting")
+	fmt.Println("\ndisconnecting")
 	return nil
 }
