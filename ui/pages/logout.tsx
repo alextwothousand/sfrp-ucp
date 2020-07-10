@@ -11,8 +11,8 @@ class Logout extends React.Component {
 		return {};
 	}
 
-	async render (): JSX.Element {
-		await axios.delete("");
+	render (): JSX.Element {
+		//await axios.delete("");
 
 		return (
 			<Layout title="UCP - Home" navbar={false}>

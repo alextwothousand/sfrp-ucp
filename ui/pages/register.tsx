@@ -24,8 +24,8 @@ class Register extends React.Component {
 		this.setState({[e.currentTarget.name]: e.currentTarget.value});
 	}
 
-	onSubmit = async (e: Event): Promise<void> => {
-		e.preventDefault();
+	onSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+		event.preventDefault();
 
 		const {
 			username,
@@ -36,7 +36,7 @@ class Register extends React.Component {
 			errorLabel
 		} = this.state;
 
-		await axios.post("http://localhost:3001/api/v1/adduser", {
+		await axios.post("http://localhost:3001/api/v1/user", {
 			username: username,
 			password: password,
 			cPassword: cPassword,

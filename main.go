@@ -28,7 +28,7 @@ func main() {
 	}))
 
 	app.Get("/api/v1/news", routes.News)
-	app.Post("/api/v1/adduser", routes.AddUser)
+	app.Post("/api/v1/user", routes.AddUser)
 
 	app.Post("/api/v1/session/new", routes.NewSession)
 	app.Get("/api/v1/session", routes.AuthSession)

@@ -4,8 +4,13 @@ import { parseCookies } from "nookies";
 import { NextPageContext } from "next";
 
 const Auth = async (ctx: NextPageContext): Promise<void> => {
-	const cookies = parseCookies(ctx);
-	const token = cookies.token;
+	let token = null;
+
+	if (ctx.req) {
+		token = ctx.req.headers.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+	} else {
+		token = parseCookies(ctx).token;
+	}
 
 	await axios.get("http://localhost:3001/api/v1/session", 
 		{

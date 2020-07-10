@@ -1,13 +1,13 @@
 package routes
 
 import (
-	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/gofiber/fiber"
 	"github.com/sanfierrorp/ucp/models"
+	"github.com/sanfierrorp/ucp/password"
 	"github.com/sanfierrorp/ucp/storage"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type player struct {
@@ -16,6 +16,11 @@ type player struct {
 	Password  string `json:"password"`
 	CPassword string `json:"cPassword"`
 }
+
+var (
+	validUsername *regexp.Regexp = regexp.MustCompile(`^([A-Z]|[a-z])+$`)
+	validEmail    *regexp.Regexp = regexp.MustCompile(`^.+@\w+\..+$`)
+)
 
 // AddUser handles the adduser stuff
 func AddUser(c *fiber.Ctx) {
@@ -26,11 +31,10 @@ func AddUser(c *fiber.Ctx) {
 		log.Fatal(err)
 	}
 
-	if len(p.Username) < 1 || len(p.Password) < 1 || len(p.CPassword) < 1 || len(p.Email) < 1 {
-		fmt.Println(c.Body())
+	if !password.Integrity(p.Password) || !password.Integrity(p.CPassword) {
 		c.Status(400).JSON(fiber.Map{
 			"ok":    false,
-			"error": "Incorrect input lengths",
+			"error": "Poor password entered",
 		})
 		return
 	}
@@ -45,7 +49,7 @@ func AddUser(c *fiber.Ctx) {
 
 	db := storage.Instance()
 
-	pass, err := bcrypt.GenerateFromPassword([]byte(p.Password), 12)
+	pass, err := password.Hash(p.Password)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return
