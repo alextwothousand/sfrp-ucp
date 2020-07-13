@@ -12,15 +12,17 @@ var (
 
 	matchNumber  *regexp.Regexp = regexp.MustCompile(`[0-9]`)
 	matchSpecial *regexp.Regexp = regexp.MustCompile(`[\!\@\#\$\%\^\&\*\(\\\)\-_\=\+\,\.\?\/\:\;\{\}\[\]~]`)
+
+	cost int = 12
 )
 
 // Hash encrypts your password using the bcrypt encryption method.
 func Hash(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), 12)
+	return bcrypt.GenerateFromPassword([]byte(password), cost)
 }
 
-// Check asserts whether the hash and the raw password entered match each other.
-func Check(password, hash string) bool {
+// Match asserts whether the hash and the raw password entered match each other.
+func Match(password, hash string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
 }
 

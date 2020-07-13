@@ -12,8 +12,6 @@ class Register extends React.Component {
 		this.state = {
 			username: "",
 			password: "",
-			cPassword: "",
-			email: "",
 			errorLabel: "",
 			errorLabelHidden: true,
 			list: []
@@ -30,18 +28,18 @@ class Register extends React.Component {
 		const {
 			username,
 			password,
-			cPassword,
-			email,
-			list,
 			errorLabel
 		} = this.state;
 
-		await axios.post("http://localhost:3001/api/v1/user", {
-			username: username,
-			password: password,
-			cPassword: cPassword,
-			email: email
-		}, {
+		/*axios.get("http://localhost:3001/api/v1/user", {
+
+		})*/
+
+		await axios.get("http://localhost:3001/api/v1/user", {
+			params: {
+				username: username,
+				password: password 
+			},
 			headers: {
 				"Content-Type": "application/json",
 				"Accept": "application/json"
@@ -53,7 +51,7 @@ class Register extends React.Component {
 			if (resp.status == 200) {
 				await axios.post("http://localhost:3001/api/v1/session", {
 					username: username
-				}).then((res) => {	
+				}).then((res) => {
 					if (res.status == 200) {
 						setCookie(null, "token", res.data.token, {
 							maxAge: 7200,
@@ -77,8 +75,6 @@ class Register extends React.Component {
 		const {
 			username,
 			password,
-			cPassword,
-			email,
 			list,
 			errorLabel
 		} = this.state;
@@ -94,9 +90,7 @@ class Register extends React.Component {
 							<div className="card-content">
 								<div className="field">
 									<p className="mb-4">
-										Hello! Welcome to San Fierro Roleplay. 
-										<br/>
-										If this is your first time registering an account, congratulations - you are on the correct page!
+										Welcome back to San Fierro Roleplay.
 										<br/>
 										Fill in the form below and click on <strong>next</strong> to proceed.
 									</p>
@@ -112,23 +106,7 @@ class Register extends React.Component {
 												<p className="control is-expanded has-icons-left">
 													<input className="input" type="text" name="username" value={username} placeholder="Username" onChange={this.onChange}/>
 													<span className="icon is-small is-left">
-														<i aria-hidden className="fas fa-user-tag"/>
-													</span>
-												</p>
-											</div>
-										</div>
-									</div>
-
-									<div className="field is-horizontal py-1">
-										<div className="field-label is-normal">
-											<label className="label" htmlFor="email">Email</label>
-										</div>
-										<div className="field-body">
-											<div className="field">
-												<p className="control is-expanded has-icons-left">
-													<input className="input" type="text" name="email" value={email} placeholder="email@provider.tld" onChange={this.onChange}/>
-													<span className="icon is-small is-left">
-														<i aria-hidden className="fas fa-user-tag"/>
+														<i className="fas fa-user-tag"></i>
 													</span>
 												</p>
 											</div>
@@ -151,26 +129,10 @@ class Register extends React.Component {
 										</div>
 									</div>
 
-									<div className="field is-horizontal py-1">
-										<div className="field-label is-normal">
-											<label className="label" htmlFor="cPassword">Confirm Password</label>
-										</div>
-										<div className="field-body">
-											<div className="field">
-												<p className="control is-expanded has-icons-left">
-													<input className="input" type="password" name="cPassword" value={cPassword} placeholder="Password again" onChange={this.onChange}/>
-													<span className="icon is-small is-left">
-														<i aria-hidden className="fas fa-user-tag"/>
-													</span>
-												</p>
-											</div>
-										</div>
-									</div>
-
 									<div className="field">
 										<div className="control">
 											<button className="button is-light">
-												Next
+												Login
 											</button>
 										</div>
 									</div>
@@ -180,7 +142,7 @@ class Register extends React.Component {
 						</div>
 
 						<div className="my-3">
-							Already have an account? <Link href="/login"><a>Log in!</a></Link>
+							{"Don't"} have an account? <Link href="/register"><a>Register!</a></Link>
 						</div>
 						
 					</div>

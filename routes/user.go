@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 
@@ -17,13 +18,18 @@ type player struct {
 	CPassword string `json:"cPassword"`
 }
 
+type loginPlayer struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 var (
-	validUsername *regexp.Regexp = regexp.MustCompile(`^([A-Z]|[a-z])+$`)
+	validUsername *regexp.Regexp = regexp.MustCompile(`^([A-Z]|[a-z]){3,255}$`)
 	validEmail    *regexp.Regexp = regexp.MustCompile(`^.+@\w+\..+$`)
 )
 
-// AddUser handles the adduser stuff
-func AddUser(c *fiber.Ctx) {
+// PostUser handles the adduser stuff
+func PostUser(c *fiber.Ctx) {
 	c.Accepts("application/json")
 	p := new(player)
 
@@ -47,6 +53,20 @@ func AddUser(c *fiber.Ctx) {
 		return
 	}
 
+	if !validUsername.MatchString(p.Username) {
+		c.Status(400).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Bad username",
+		})
+	}
+
+	if !validEmail.MatchString(p.Email) {
+		c.Status(400).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Bad email",
+		})
+	}
+
 	db := storage.Instance()
 
 	pass, err := password.Hash(p.Password)
@@ -67,5 +87,72 @@ func AddUser(c *fiber.Ctx) {
 	})
 
 	c.Status(200)
+	return
+}
+
+// GetUser grabs a user's information IF they are registered.
+func GetUser(c *fiber.Ctx) {
+	c.Accepts("application/json")
+	p := new(loginPlayer)
+
+	if err := c.BodyParser(p); err != nil {
+		log.Fatal(err)
+	}
+
+	if !validUsername.MatchString(p.Username) {
+		c.Status(400).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Bad username",
+		})
+	}
+
+	if !password.Integrity(p.Password) {
+		c.Status(400).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Poor password entered",
+		})
+		return
+	}
+
+	db := storage.Instance()
+
+	count := 0
+	db.Where("name = ?", p.Username).Find(&models.Players{}).Count(&count)
+
+	if count != 1 {
+		c.Status(405).JSON(fiber.Map{
+			"ok":    false,
+			"error": "User does not exist",
+		})
+		return
+	}
+
+	player := models.Players{}
+	db.Where("name = ?", p.Username).First(&player)
+
+	//fmt.Println("count is", count)
+	//fmt.Println("player len is", len(player))
+
+	if !password.Match(p.Password, player.Password) {
+		c.Status(401).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Incorrect password entered",
+		})
+
+		fmt.Println("Incorrect passsword entered - tsk tsk.")
+		return
+	}
+
+	c.Status(200)
+
+	/*if p.Password != p.CPassword {
+		c.Status(400).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Passwords do not match",
+		})
+		return
+	}*/
+
+	//c.Redirect("/ucp", 302)
 	return
 }

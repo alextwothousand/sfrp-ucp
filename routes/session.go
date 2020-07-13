@@ -6,6 +6,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber"
+	"github.com/sanfierrorp/ucp/models"
+	"github.com/sanfierrorp/ucp/storage"
 )
 
 type newSession struct {
@@ -26,8 +28,26 @@ func NewSession(c *fiber.Ctx) {
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = s.Username
-	claims["admin"] = false
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["id"] = -1
+	claims["exp"] = time.Now().Add(time.Hour * 2).Unix()
+
+	db := storage.Instance()
+	count := 0
+
+	db.Where("name = ?", s.Username).Find(&models.Players{}).Count(&count)
+
+	if count < 1 {
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"ok":    false,
+			"error": "An error has occured.",
+		})
+		return
+	}
+
+	player := models.Players{}
+	db.Where("name = ?", s.Username).First(&player)
+
+	claims["id"] = player.ID
 
 	t, err := token.SignedString([]byte("Bv&06I6Nun&r!#c6ra$r"))
 	if err != nil {
@@ -37,20 +57,15 @@ func NewSession(c *fiber.Ctx) {
 
 	//fmt.Println("Token is", t)
 
-	c.JSON(fiber.Map{
+	c.Status(200).JSON(fiber.Map{
 		"token": t,
 	})
-	c.Status(200)
 	return
 }
 
 // AuthSession authenticates the users session.
 func AuthSession(c *fiber.Ctx) {
 	// /api/v1/session - Method: GET
-
-}
-
-// DeleteSession clears the users session.
-func DeleteSession(c *fiber.Ctx) {
-	// /api/v1/session - Method: DELETE
+	//fmt.Println("status is 200")
+	return
 }

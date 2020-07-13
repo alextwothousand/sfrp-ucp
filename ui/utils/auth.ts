@@ -12,6 +12,8 @@ const Auth = async (ctx: NextPageContext): Promise<void> => {
 		token = parseCookies(ctx).token;
 	}
 
+	console.log("token is " + token);
+
 	await axios.get("http://localhost:3001/api/v1/session", 
 		{
 			headers: {
@@ -19,7 +21,8 @@ const Auth = async (ctx: NextPageContext): Promise<void> => {
 			},
 		})
 		.then((res) => {
-			if (res.status == 200) console.log("authorised");
+			console.log(res.status);
+			if (res.status == 200) Promise.resolve();
 		})
 		.catch(() => {
 			if (ctx.res) {
@@ -31,6 +34,8 @@ const Auth = async (ctx: NextPageContext): Promise<void> => {
 			} else {
 				Router.push("/");
 			}
+
+			Promise.reject();
 		});
 };
 
