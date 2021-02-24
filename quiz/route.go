@@ -43,7 +43,7 @@ func Post(c *fiber.Ctx) {
 	db := storage.Instance()
 	count := 0
 
-	db.Where(&models.Quiz{PlayerSqlID: id}).Find(&models.Quiz{}).Count(&count)
+	db.Where(&models.Quiz{PlayerSQLID: id}).Find(&models.Quiz{}).Count(&count)
 
 	if count > 0 {
 		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
